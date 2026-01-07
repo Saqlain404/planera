@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePagesStore } from "@/store/usePagesStore";
+import { useHistoryStore } from "@/stores/history.store";
 
 const EditorShortcuts = () => {
-  const undo = usePagesStore((s) => s.undo);
-  const redo = usePagesStore((s) => s.redo);
+  const undo = useHistoryStore((s) => s.undo);
+  const redo = useHistoryStore((s) => s.redo);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

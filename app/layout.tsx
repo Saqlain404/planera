@@ -1,5 +1,13 @@
 import "./globals.css";
-import { PagesProvider } from "@/context/PagesContext";
+import { Metadata } from "next";
+// import { usePagesStore } from "@/store/usePagesStore";
+
+export const metadata: Metadata = {
+  title: "Planera",
+  description:
+    `Planera is a modern planning and execution platform designed to help individuals, teams, and 
+    organizations think clearly, plan effectively, and execute confidently.`,
+};
 
 export default function RootLayout({
   children,
@@ -9,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <PagesProvider>{children}</PagesProvider>
+        {children}
       </body>
     </html>
   );

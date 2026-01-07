@@ -3,16 +3,28 @@ import { usePagesStore } from "@/store/usePagesStore";
 import TextBlock from "./TextBlock";
 import TaskBlock from "./TaskBlock";
 import { MutableRefObject } from "react";
+import { useHistoryStore } from "@/stores/history.store";
 
-const BlockRenderer = ({ block, dragBlockIdRef, index }: { block: Block; dragBlockIdRef: MutableRefObject<string | null>; index: number }) => {
+const BlockRenderer = ({
+  block,
+  dragBlockIdRef,
+  index,
+}: {
+  block: Block;
+  dragBlockIdRef: MutableRefObject<string | null>;
+  index: number;
+}) => {
   const moveBlock = usePagesStore((s) => s.moveBlock);
   const currentPageId = usePagesStore((s) => s.currentPageId);
   const moveBlockById = usePagesStore((s) => s.moveBlockById);
+  const startBatch = useHistoryStore((s) => s.startBatch);
+  const endBatch = useHistoryStore((s) => s.endBatch);
 
   const moveUp = () => {
     if (!currentPageId) return;
     moveBlock(currentPageId, block.id, "up");
   };
+
   const moveDown = () => {
     if (!currentPageId) return;
     moveBlock(currentPageId, block.id, "down");
@@ -20,14 +32,13 @@ const BlockRenderer = ({ block, dragBlockIdRef, index }: { block: Block; dragBlo
 
   const onDragStart = () => {
     dragBlockIdRef.current = block.id;
+    startBatch();
   };
 
-  // 2️⃣ ALLOW DROP (THIS IS THE FIX)
   const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // ❗ REQUIRED
+    e.preventDefault();
   };
 
-  // 3️⃣ Drop = reorder
   const onDrop = () => {
     if (
       !dragBlockIdRef.current ||
@@ -36,26 +47,29 @@ const BlockRenderer = ({ block, dragBlockIdRef, index }: { block: Block; dragBlo
     )
       return;
 
-    moveBlockById(
-      currentPageId,
-      dragBlockIdRef.current,
-      block.id
-    );
-
+    moveBlockById(currentPageId, dragBlockIdRef.current, block.id);
+    endBatch();
     dragBlockIdRef.current = null;
   };
 
-  // 4️⃣ Cleanup
+  // ✅ FIX: Properly cleanup batch if drag is cancelled
   const onDragEnd = () => {
+    // If drag was cancelled (not dropped), end batch without recording
+    if (dragBlockIdRef.current) {
+      endBatch();
+    }
     dragBlockIdRef.current = null;
   };
 
   return (
-    <div className="group flex gap-2 items-start"  draggable
+    <div
+      className="group flex gap-2 items-start"
+      draggable
       onDragStart={onDragStart}
-      onDragOver={onDragOver} // ✅ REQUIRED
+      onDragOver={onDragOver}
       onDrop={onDrop}
-      onDragEnd={onDragEnd}>
+      onDragEnd={onDragEnd}
+    >
       <div className="flex flex-col opacity-0 group-hover:opacity-100">
         <button onClick={moveUp} className="text-xs">
           ↑
@@ -73,4 +87,5 @@ const BlockRenderer = ({ block, dragBlockIdRef, index }: { block: Block; dragBlo
     </div>
   );
 };
+
 export default BlockRenderer;
