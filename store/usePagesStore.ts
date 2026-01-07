@@ -51,7 +51,7 @@ export const usePagesStore = create<PagesState>((set, get) => ({
     const pages = loadInitialPages();
     set({ pages, isLoading: false });
     // Initialize history with current state
-    useHistoryStore.getState().record(pages, { type: "initialize" });
+    useHistoryStore.getState().record(pages, { type: "initialize", meta: {} });
   },
 
   /* -------------------- Pages -------------------- */
