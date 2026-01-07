@@ -2,7 +2,6 @@
 
 import { useHistoryStore } from "@/stores/history.store";
 import { usePagesStore } from "@/store/usePagesStore";
-import { useEffect, useState } from "react";
 
 
 
@@ -14,18 +13,13 @@ const EditorToolbar = () => {
   const canUndo = past.length > 0;
   const canRedo = future.length > 0;
 
-  const [update ,setUpdate] = useState(0);
-
-  useEffect(() => {
-  console.log("HISTORY STATE", useHistoryStore.getState());
-}, [update]);
+ 
 
   const undo = () => {
     const entry = useHistoryStore.getState().undo();
     if (entry) {
       usePagesStore.getState().applySnapshot(entry.snapshot);
     }
-    setUpdate(update + 1);
   };
 
   const redo = () => {

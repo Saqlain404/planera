@@ -10,7 +10,7 @@ type HistoryAction = {
   meta?: Record<string, any>;
 };
 
-type HistoryEntry = {
+export type HistoryEntry = {
   snapshot: Page[];
   action: HistoryAction;
   timestamp: number;

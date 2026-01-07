@@ -7,6 +7,7 @@ import PageEditor from "@/components/editor/PageEditor";
 import AddBlock from "@/components/editor/AddBlock";
 import { usePagesStore } from "@/store/usePagesStore";
 import EditorToolbar from "@/components/editor/EditorToolbar";
+import HistoryPanel from "@/components/history/HistoryPanel";
 
 export default function WorkspacePage() {
   const { pageId } = useParams();
@@ -70,6 +71,7 @@ export default function WorkspacePage() {
         <EditorToolbar />
         <AddBlock />
         <PageEditor />
+        <HistoryPanel/>
       </main>
     </div>
   );
