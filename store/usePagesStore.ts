@@ -1,159 +1,170 @@
 import { create } from "zustand";
 import { Page } from "@/types/page";
+import { useHistoryStore } from "@/stores/history.store";
 import { getFromStorage, saveToStorage } from "@/services/storageService";
 
 type PagesState = {
   pages: Page[];
   currentPageId: string | null;
-  history: Page[][];
-  future: Page[][];
+  isLoading: boolean;
 
+  // page actions
   createPage: () => string;
   deletePage: (id: string) => void;
   setCurrentPage: (id: string) => void;
   updatePage: (page: Page) => void;
-  undo: () => void;
-  redo: () => void;
-  moveBlock: (pageId: string, blockId: string, direction: "up" | "down") => void;
-  moveBlockById: (pageId: string, sourceId: string, targetId: string) => void;
+
+  // block actions
+  moveBlock: (
+    pageId: string,
+    blockId: string,
+    direction: "up" | "down"
+  ) => void;
+
+  moveBlockById: (
+    pageId: string,
+    fromBlockId: string,
+    toBlockId: string
+  ) => void;
+
+  // history integration
+  applySnapshot: (snapshot: Page[]) => void;
+  
+  // initialization
+  initializeFromStorage: () => void;
 };
 
-const storedPages = getFromStorage("planera_pages") || [];
+// Load initial pages from localStorage
+const loadInitialPages = (): Page[] => {
+  const stored = getFromStorage("planera_pages");
+  return Array.isArray(stored) ? stored : [];
+};
 
 export const usePagesStore = create<PagesState>((set, get) => ({
-  pages: Array.isArray(storedPages) ? storedPages : [],
+  pages: loadInitialPages(),
   currentPageId: null,
-  history: [],
-  future: [],
-  setCurrentPage: (id) => set({ currentPageId: id }),
+  isLoading: true,
+
+  /* -------------------- Init -------------------- */
+
+  initializeFromStorage: () => {
+    const pages = loadInitialPages();
+    set({ pages, isLoading: false });
+    // Initialize history with current state
+    useHistoryStore.getState().record(pages, { type: "initialize" });
+  },
+
+  /* -------------------- Pages -------------------- */
 
   createPage: () => {
     const newPage: Page = {
       id: crypto.randomUUID(),
-      title: "Untitled Page",
+      title: "Untitled",
       blocks: [],
     };
 
     const pages = [...get().pages, newPage];
+    
+    set({ pages, currentPageId: newPage.id });
     saveToStorage("planera_pages", pages);
-
-    set({
-      pages,
-      currentPageId: newPage.id,
-    });
+    
+    // Record after state update
+    useHistoryStore.getState().record(pages, {
+  type: "page-create",
+  meta: { pageId: newPage.id },
+});
 
     return newPage.id;
-  },
-  updatePage: (updatedPage) => {
-    const prevPages = get().pages;
-
-    const pages = prevPages.map((p) =>
-      p.id === updatedPage.id ? updatedPage : p
-    );
-
-    set({
-      pages,
-      history: [...get().history, prevPages],
-      future: [], // clear redo stack
-    });
-
-    saveToStorage("planera_pages", pages);
   },
 
   deletePage: (id) => {
     const pages = get().pages.filter((p) => p.id !== id);
+    
+    set({ pages, currentPageId: pages[0]?.id || null });
+    saveToStorage("planera_pages", pages);
+    
+    // Record after state update
+    useHistoryStore.getState().record(pages, {
+      type: "page-delete",
+      meta: { pageId: id },
+    });
+  },
+
+  setCurrentPage: (id) => {
+    set({ currentPageId: id });
+  },
+
+  updatePage: (updatedPage) => {
+    const pages = get().pages.map((p) =>
+      p.id === updatedPage.id ? updatedPage : p
+    );
+
+    set({ pages });
     saveToStorage("planera_pages", pages);
 
-    set({
-      pages,
-      currentPageId: pages[0]?.id || null,
+    // Record, respecting batching
+    useHistoryStore.getState().record(pages, {
+      type: "page-update",
+      meta: { pageId: updatedPage.id },
     });
   },
 
-  undo: () => {
-    const { history, pages } = get();
-    if (!history.length) return;
+  /* -------------------- Blocks -------------------- */
 
-    const previous = history[history.length - 1];
+  moveBlock: (pageId, blockId, direction) => {
+    const pages = structuredClone(get().pages);
+    const page = pages.find((p) => p.id === pageId);
+    if (!page) return;
 
-    set({
-      pages: previous,
-      history: history.slice(0, -1),
-      future: [pages, ...get().future],
-    });
+    const index = page.blocks.findIndex((b) => b.id === blockId);
+    if (index === -1) return;
 
-    saveToStorage("planera_pages", previous);
-  },
-  
-  redo: () => {
-    const { future, pages } = get();
-    if (!future.length) return;
+    const target = direction === "up" ? index - 1 : index + 1;
 
-    const next = future[0];
+    if (target < 0 || target >= page.blocks.length) return;
 
-    set({
-      pages: next,
-      future: future.slice(1),
-      history: [...get().history, pages],
-    });
+    [page.blocks[index], page.blocks[target]] = [
+      page.blocks[target],
+      page.blocks[index],
+    ];
 
-    saveToStorage("planera_pages", next);
-  },
+    set({ pages });
+    saveToStorage("planera_pages", pages);
 
-  moveBlock: (pageId: string, blockId: string, direction: "up" | "down") => {
-    const {pages, currentPageId} = get();
-    const page = pages.find((page) => page.id === pageId);
-    if(!page) return;
-
-    const index = page.blocks.findIndex((block) => block.id === blockId);
-    if(index === -1) return;
-
-    if(direction === "up" && index === 0) return;
-    if(direction === "down" && index === page.blocks.length - 1) return;
-
-    const snapshot = {
-      page,
-      currentPageId
-    }
-
-    const newBlocks = [...page.blocks];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-
-    [newBlocks[index], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[index]];
-
-    const updatedPages = pages.map((page) => page.id === pageId ? {...page, blocks: newBlocks} : page)
-
-    set({
-      pages: updatedPages,
-      history: [...get().history, snapshot.page ? pages : get().pages],
-      future: [],
+    // Record, respecting batching
+    useHistoryStore.getState().record(pages, {
+      type: "block-move",
+      meta: { pageId, blockId, direction },
     });
   },
-  moveBlockById: (pageId: string, sourceId: string, targetId: string) => {
-    const {pages} = get();
-    const page = pages.find((page) => page.id === pageId);
-    if(!page) return;
 
-    const sourceIndex = page.blocks.findIndex((block) => block.id === sourceId);
-    const targetIndex = page.blocks.findIndex((block) => block.id === targetId);
+  moveBlockById: (pageId, fromId, toId) => {
+    const pages = structuredClone(get().pages);
+    const page = pages.find((p) => p.id === pageId);
+    if (!page) return;
 
-    if(sourceIndex === -1 || targetIndex === -1) return;
+    const fromIndex = page.blocks.findIndex((b) => b.id === fromId);
+    const toIndex = page.blocks.findIndex((b) => b.id === toId);
 
-    const snapshot = {
-      pages,
-      currentPageId: get().currentPageId,
-    };
-    const newBlocks = [...page.blocks];
-    const [movedBlock] = newBlocks.splice(sourceIndex, 1);
-    newBlocks.splice(targetIndex, 0, movedBlock);
-    
-    set({
-      pages: pages.map((page) => 
-      page.id === pageId ? {...page, blocks: newBlocks} : page),
-      history: [...get().history, snapshot.pages],
-      future: [],
-    })
-  }
+    if (fromIndex === -1 || toIndex === -1) return;
 
+    const [moved] = page.blocks.splice(fromIndex, 1);
+    page.blocks.splice(toIndex, 0, moved);
+
+    set({ pages });
+    saveToStorage("planera_pages", pages);
+
+    // Record, respecting batching
+    useHistoryStore.getState().record(pages, {
+      type: "block-move-by-id",
+      meta: { pageId, fromId, toId },
+    });
+  },
+
+  /* -------------------- History -------------------- */
+
+  applySnapshot: (snapshot) => {
+    set({ pages: snapshot });
+    saveToStorage("planera_pages", snapshot);
+  },
 }));
-

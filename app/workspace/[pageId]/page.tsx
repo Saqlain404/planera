@@ -12,18 +12,34 @@ export default function WorkspacePage() {
   const { pageId } = useParams();
 
   const pages = usePagesStore((s) => s.pages);
+  const isLoading = usePagesStore((s) => s.isLoading);
   const setCurrentPage = usePagesStore((s) => s.setCurrentPage);
+  const initializeFromStorage = usePagesStore((s) => s.initializeFromStorage);
 
-  const currentPage = pages.find(
-    (page) => page.id === pageId
-  );
+  const currentPage = pages.find((page) => page.id === pageId);
 
-  // ✅ FIX: state update moved to effect
+  // Initialize from storage on mount
+  useEffect(() => {
+    initializeFromStorage();
+  }, [initializeFromStorage]);
+
   useEffect(() => {
     if (pageId) {
       setCurrentPage(pageId as string);
     }
   }, [pageId, setCurrentPage]);
+
+  // ✅ FIX: Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen">
+        <Sidebar />
+        <main className="flex-1 p-6 flex items-center justify-center text-gray-500">
+          Loading...
+        </main>
+      </div>
+    );
+  }
 
   if (!currentPage) {
     return (
