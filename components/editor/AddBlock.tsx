@@ -34,9 +34,19 @@ const AddBlock = () => {
   };
 
   return (
-    <div className="flex gap-2 mb-4">
-      <button onClick={() => addBlock("text")} className="p-2 bg-amber-500 rounded text-black">+ Text</button>
-      <button onClick={() => addBlock("task")} className="p-2 bg-amber-500 rounded text-black">+ Task</button>
+   <div className="flex gap-2 mb-6">
+      <button
+        onClick={() => addBlock("text")}
+        className="btn-minimal primary"
+      >
+        + Text
+      </button>
+      <button
+        onClick={() => addBlock("task")}
+        className="btn-minimal primary"
+      >
+        + Task
+      </button>
     </div>
   );
 };

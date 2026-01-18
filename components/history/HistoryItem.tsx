@@ -6,22 +6,41 @@ import { getHistoryLabel } from "./historyLabels";
 type Props = {
   entry: HistoryEntry;
   isLatest: boolean;
-    pending?: boolean;
+  pending?: boolean;
 };
 
 const HistoryItem = ({ entry, isLatest, pending }: Props) => {
   return (
-    <div
-      className={`px-3 py-2 rounded text-sm flex justify-between items-center
-        ${isLatest ? "bg-amber-200 text-black" : "bg-gray-100 text-black"}
-      `}
-    >{pending && <span className="text-xs italic">(pending)</span>}
-      <span>{getHistoryLabel(entry)}</span>
-      <span className="text-xs text-gray-500">
-        {new Date(entry.timestamp).toLocaleTimeString()}
-        
-      </span>
-    </div>
+    <button
+      className={`w-full history-entry group ${
+        pending ? "history-entry.pending" : ""
+      } ${isLatest ? "bg-blue-50 border border-blue-100" : ""}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {pending && (
+            <span className="inline-block w-2 h-2 bg-amber-400 rounded-full flex-shrink-0 animate-pulse"></span>
+          )}
+          {isLatest && !pending && (
+            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+          )}
+          <span className="text-sm text-slate-700 truncate font-medium">
+            {getHistoryLabel(entry)}
+          </span>
+          {pending && (
+            <span className="text-xs text-slate-500 ml-auto flex-shrink-0">
+              Recording...
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-slate-400 flex-shrink-0">
+          {new Date(entry.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+      </div>
+    </button>
   );
 };
 

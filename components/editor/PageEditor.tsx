@@ -19,7 +19,7 @@ const PageEditor = () => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="w-full mx-auto space-y-0">
       {currentPage.blocks.map((block, index) => (
         <BlockRenderer
           key={block.id}
@@ -28,6 +28,11 @@ const PageEditor = () => {
           dragBlockIdRef={dragBlockIdRef}
         />
       ))}
+      {currentPage.blocks.length === 0 && (
+        <div className="py-12 text-center text-slate-400">
+          <p>Start typing to create your first block...</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -82,38 +82,47 @@ const TaskBlock = ({
 
   return (
     <div
-      className="w-full flex justify-between gap-2 group border p-2 rounded border-green-800 bg-teal-950"
+      className="editor-block group relative flex items-center gap-3"
       onKeyDown={handleMoveBlock}
     >
-      <div className="flex items-center gap-2 w-full ">
-        <input
-          type="checkbox"
-          checked={block.completed}
-          onChange={toggleTask}
-        />
-        <input
-          className={`outline-none bg-transparent w-full ${
-            block.completed ? "line-through text-gray-400" : ""
-          }`}
-          value={block.content}
-          placeholder="Task..."
-          onChange={(e) => updateText(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-      </div>
-      <div>
-        <button
-          onClick={() =>
-            updateCurrentPage({
-              ...currentPage,
-              blocks: removeBlock(currentPage.blocks, block.id),
-            })
-          }
-          className="opacity-0 group-hover:opacity-100 text-red-500"
-        >
-          ✕
-        </button>
-      </div>
+    
+
+      {/* Checkbox */}
+      <input
+        type="checkbox"
+        checked={block.completed}
+        onChange={toggleTask}
+        className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-pointer"
+        aria-label="Toggle task"
+      />
+
+      {/* Input */}
+      <input
+        type="text"
+        className={`editor-input text-base ${
+          block.completed
+            ? "line-through text-slate-400"
+            : "text-slate-900"
+        }`}
+        placeholder="Add a task..."
+        value={block.content}
+        onChange={(e) => updateText(e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+
+      {/* Delete button - hidden until hover */}
+      <button
+        onClick={() =>
+          updateCurrentPage({
+            ...currentPage,
+            blocks: removeBlock(currentPage.blocks, block.id),
+          })
+        }
+        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-colors ml-auto"
+        aria-label="Delete task"
+      >
+        ✕
+      </button>
     </div>
   );
 };

@@ -1,26 +1,82 @@
 @import "tailwindcss";
+/* app/globals.css */
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+* {
+  @apply transition-colors duration-150;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  @apply scroll-smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-white text-slate-900;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    sans-serif;
+}
+
+/* Editor-first utilities */
+@layer components {
+  /* Invisible until focused - editor blocks */
+  .editor-block {
+    @apply px-4 py-2 hover:bg-slate-50 rounded-lg transition-colors duration-75;
+  }
+
+  .editor-block:focus-within {
+    @apply bg-slate-50;
+  }
+
+  /* Minimal text input */
+  .editor-input {
+    @apply w-full bg-transparent outline-none text-base leading-relaxed;
+  }
+
+  /* Soft focus ring */
+  .focus-ring {
+    @apply focus:ring-1 focus:ring-blue-400 focus:ring-offset-0;
+  }
+
+  /* Sidebar soft separation */
+  .sidebar-item {
+    @apply px-3 py-2 mx-1 rounded-md text-sm text-slate-700 hover:bg-slate-100 transition-colors;
+  }
+
+  .sidebar-item.active {
+    @apply bg-slate-100 font-medium text-slate-900;
+  }
+
+  /* Minimal button */
+  .btn-minimal {
+    @apply px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition-colors duration-150;
+  }
+
+  .btn-minimal:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+
+  .btn-minimal.primary {
+    @apply text-blue-600 hover:bg-blue-50;
+  }
+
+  /* Icon button */
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-md text-slate-600 hover:bg-slate-100 transition-colors;
+  }
+
+  /* Divider - soft separation */
+  .divider-soft {
+    @apply bg-slate-200/50;
+  }
+
+  /* History entry */
+  .history-entry {
+    @apply px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-md transition-colors;
+  }
+
+  .history-entry.pending {
+    @apply opacity-60 italic;
+  }
 }

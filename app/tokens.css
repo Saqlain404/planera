@@ -1,0 +1,91 @@
+:root {
+  /* =========================
+     BACKGROUND COLORS
+     ========================= */
+
+  /* App-level background (behind everything) */
+  --bg-app: #f7f8fa;
+
+  /* Primary surfaces (editor, panels) */
+  --bg-surface: #ffffff;
+
+  /* Hover / selected / subtle elevation */
+  --bg-elevated: #f1f3f5;
+
+
+  /* =========================
+     TEXT COLORS
+     ========================= */
+
+  /* Primary readable text */
+  --text-primary: #111827;
+
+  /* Secondary UI text */
+  --text-secondary: #374151;
+
+  /* Muted / placeholder / metadata */
+  --text-muted: #6b7280;
+
+
+  /* =========================
+     BORDER & DIVIDER COLORS
+     ========================= */
+
+  /* Subtle separators only */
+  --border-subtle: rgba(17, 24, 39, 0.08);
+
+
+  /* =========================
+     ACCENT COLORS
+     ========================= */
+
+  /* Primary interactive color */
+  --accent-primary: #4f46e5;
+
+
+  /* =========================
+     TYPOGRAPHY
+     ========================= */
+
+  /* Font sizes */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+
+  /* Line heights */
+  --line-height-ui: 1.4;
+  --line-height-body: 1.6;
+
+
+  /* =========================
+     SPACING SCALE
+     ========================= */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+
+  /* =========================
+     BORDER RADIUS
+     ========================= */
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+
+  /* =========================
+     SHADOWS (RARE USE)
+     ========================= */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+}

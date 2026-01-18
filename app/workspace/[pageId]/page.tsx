@@ -33,10 +33,10 @@ export default function WorkspacePage() {
   // ✅ FIX: Show loading state
   if (isLoading) {
     return (
-      <div className="flex h-screen">
+      <div className="flex h-screen bg-white">
         <Sidebar />
-        <main className="flex-1 p-6 flex items-center justify-center text-gray-500">
-          Loading...
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-slate-400">Loading...</div>
         </main>
       </div>
     );
@@ -44,34 +44,47 @@ export default function WorkspacePage() {
 
   if (!currentPage) {
     return (
-      <div className="flex h-screen">
+      <div className="flex h-screen bg-white">
         <Sidebar />
-        <main className="flex-1 p-6 flex items-center justify-center text-gray-500">
-          Create a new page
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-slate-500 mb-4">Create a new page to start</p>
+          </div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-white">
       <Sidebar />
 
-      <main className="flex-1 p-6">
-        <input
-          className="text-2xl font-bold mb-4 outline-none bg-transparent w-full"
-          value={currentPage.title}
-          onChange={(e) =>
-            usePagesStore
-              .getState()
-              .updatePage({ ...currentPage, title: e.target.value })
-          }
-        />
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <div className="border-b border-slate-200/50 bg-white p-4">
+          <input
+            className="text-2xl font-bold outline-none bg-transparent text-slate-900 placeholder-slate-300"
+            placeholder="Untitled"
+            value={currentPage.title}
+            onChange={(e) =>
+              usePagesStore
+                .getState()
+                .updatePage({ ...currentPage, title: e.target.value })
+            }
+          />
+        </div>
 
-        <EditorToolbar />
-        <AddBlock />
-        <PageEditor />
-        <HistoryPanel/>
+        {/* Editor area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            <EditorToolbar />
+            <AddBlock />
+            <PageEditor />
+          </div>
+        </div>
+
+        {/* History panel - optional overlay */}
+        <HistoryPanel />
       </main>
     </div>
   );

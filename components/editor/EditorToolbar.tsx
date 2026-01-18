@@ -30,13 +30,12 @@ const EditorToolbar = () => {
   };
 
   return (
-    <div className="flex items-center gap-2 mb-4 border-b pb-2">
+    <div className="flex items-center gap-1 mb-6 pb-4 border-b border-slate-200/50">
       <button
         onClick={undo}
         disabled={!canUndo}
-        className={`px-2 py-1 rounded ${
-          canUndo ? "hover:bg-gray-600" : "opacity-40"
-        }`}
+        className="btn-minimal"
+        title="Undo (Cmd+Z)"
       >
         ⟲ Undo
       </button>
@@ -44,9 +43,8 @@ const EditorToolbar = () => {
       <button
         onClick={redo}
         disabled={!canRedo}
-        className={`px-2 py-1 rounded ${
-          canRedo ? "hover:bg-gray-600" : "opacity-40"
-        }`}
+        className="btn-minimal"
+        title="Redo (Cmd+Shift+Z)"
       >
         ⟳ Redo
       </button>
